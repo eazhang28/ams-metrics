@@ -3,11 +3,8 @@ from itertools import combinations
 import math
 import sys
 
-
-
 def apriori(dataset, min_support=0.5, verbose=False):
-    """Implements the Apriori algorithm.
-
+    """
     The Apriori algorithm will iteratively generate new candidate
     k-itemsets using the frequent (k-1)-itemsets found in the previous
     iteration.
@@ -28,34 +25,20 @@ def apriori(dataset, min_support=0.5, verbose=False):
 
     support_data : dict
         The support data for all candidate itemsets.
-
-    References
-    ----------
-    .. [1] R. Agrawal, R. Srikant, "Fast Algorithms for Mining Association
-           Rules", 1994.
-
     """
     C1 = create_candidates(dataset)
     D = list(map(set, dataset))
-    F1, support_data = get_freq(D, C1, min_support, verbose=False) # get frequent 1-itemsets
-    F = [F1] # list of frequent itemsets; initialized to frequent 1-itemsets
-    k = 2 # the itemset cardinality
-    # print(f"Candidate set 1,        length: {len(C1)}")
-    # print(f"Frequent items set 1,   length: {len(F1)}")
-    # print(f"Frequent items set 1: {F1}")
+    F1, support_data = get_freq(D, C1, min_support, verbose=False)  # get frequent 1-itemsets
+    F = [F1]                                                        # list of frequent itemsets; initialized to frequent 1-itemsets
+    k = 2                                                           # the itemset cardinality
     while (len(F[k - 2]) > 0):
-        Ck = apriori_gen(F[k-2], k) # generate candidate itemsets
-        # print(f"Candidate set {k},        length: {len(Ck)}")
-        # print(f"Candidate set {k}: {Ck}")
-        Fk, supK  = get_freq(D, Ck, min_support) # get frequent itemsets
-        # print(f"Frequent items set {k},   length: {len(Fk)}")
-        # print(f"Frequent items set {k}: {Fk}")
-        support_data.update(supK)# update the support counts to reflect pruning
-        F.append(Fk)  # add the frequent k-itemsets to the list of frequent itemsets
+        Ck = apriori_gen(F[k-2], k)                                 # generate candidate itemsets
+        Fk, supK  = get_freq(D, Ck, min_support)                    # get frequent itemsets
+        support_data.update(supK)                                   # update the support counts to reflect pruning
+        F.append(Fk)                                                # add the frequent k-itemsets to the list of frequent itemsets
         k += 1
 
-    if verbose:
-        # Print a list of all the frequent itemsets.
+    if verbose:                                                     # Print a list of all the frequent itemsets.
         for kset in F:
             for item in kset:
                 print(""                     + "{"                     + "".join(str(i) + ", " for i in iter(item)).rstrip(', ')                     + "}"                     + ":  sup = " + str(round(support_data[item], 3)))
@@ -63,8 +46,8 @@ def apriori(dataset, min_support=0.5, verbose=False):
     return F, support_data
 
 def create_candidates(dataset, verbose=False):
-    """Creates a list of candidate 1-itemsets from a list of transactions.
-
+    """
+    Creates a list of candidate 1-itemsets from a list of transactions.
     Parameters
     ----------
     dataset : list
@@ -76,22 +59,18 @@ def create_candidates(dataset, verbose=False):
     The list of candidate itemsets (c1) passed as a frozenset (a set that is
     immutable and hashable).
     """
-    c1 = [] # list of all items in the database of transactions
+    c1 = []                                                         # list of all items in the database of transactions
     for transaction in dataset:
         for item in transaction:
             if not [item] in c1:
                 c1.append([item])
     c1.sort()
-    if verbose:
-        # Print a list of all the candidate items.
+    if verbose:                                                     # Print a list of all the candidate items.
         print(""             + "{"             + "".join(str(i[0]) + ", " for i in iter(c1)).rstrip(', ')             + "}")
-
-    # Map c1 to a frozenset because it will be the key of a dictionary.
-    return list(map(frozenset, c1))
+    return list(map(frozenset, c1))                                 # Map c1 to a frozenset because it will be the key of a dictionary.
 
 def get_freq(dataset, candidates, min_support, verbose=False):
     """
-
     This function separates the candidates itemsets into frequent itemset and infrequent itemsets based on the min_support,
 	and returns all candidate itemsets that meet a minimum support threshold.
 
@@ -131,7 +110,8 @@ def get_freq(dataset, candidates, min_support, verbose=False):
     return freq_list, support_data
 
 def apriori_gen(freq_sets, k):
-    """Generates candidate itemsets (via the F_k-1 x F_k-1 method).
+    """
+    Generates candidate itemsets (via the F_k-1 x F_k-1 method).
 
     This part generates new candidate k-itemsets based on the frequent
     (k-1)-itemsets found in the previous iteration.
@@ -164,26 +144,20 @@ def apriori_gen(freq_sets, k):
     for combo in combinations_list:
         subsets = set(combinations(combo, k-1))
         l = set(frozenset(x) for x in subsets)
-
-        ## if subset items of a combo ALL exist in the freq_sets list, append combo to candidate list
-        if l <= set(freq_sets) and len(l) > 0:
+        
+        if l <= set(freq_sets) and len(l) > 0:                      # if subset items of a combo ALL exist in the freq_sets list, append combo to candidate list
             candidate_list.append(combo)
     return candidate_list
-
 
 def loadDataSet(fileName, delim=','):
     fr = open(fileName)
     stringArr = [line.strip().split(delim) for line in fr.readlines()]
     return stringArr
 
-
-
 def run_apriori(data_path, min_support, verbose=False):
     dataset = loadDataSet(data_path)
     F, support = apriori(dataset, min_support=min_support, verbose=verbose)
     return F, support
-
-
 
 def bool_transfer(input):
     ''' Transfer the input to boolean type'''
@@ -194,9 +168,6 @@ def bool_transfer(input):
         return False
     else:
         raise ValueError('Input must be one of {T, t, 1, True, true, F, F, 0, False, false}')
-
-
-
 
 if __name__ == '__main__':
     if len(sys.argv)==3:
@@ -211,11 +182,9 @@ if __name__ == '__main__':
 
     '''
     Example: 
-    
-    python apriori_templete.py market_data_transaction.txt 0.5 
-    
-    python apriori_templete.py market_data_transaction.txt 0.5 True
-    
+    python apriori.py data.txt 0.5 
+    OR
+    python apriori.py data.txt 0.5 True
     '''
 
 
