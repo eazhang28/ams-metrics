@@ -32,17 +32,17 @@ def apriori(dataset, min_support=0.5, verbose=False):
     """
     C1 = create_candidates(dataset)
     D = list(map(set, dataset))
-    F1, support_data = get_freq(D, C1, min_support, verbose=False)  # get frequent 1-itemsets
-    F = [F1]                                                        # list of frequent itemsets; initialized to frequent 1-itemsets
-    k = 2                                                           # the itemset cardinality
+    F1, support_data = get_freq(D, C1, min_support, verbose=False)  
+    F = [F1]                                                        
+    k = 2                                                           
     while (len(F[k - 2]) > 0):
-        Ck = apriori_gen(F[k-2], k)                                 # generate candidate itemsets
-        Fk, supK  = get_freq(D, Ck, min_support)                    # get frequent itemsets
-        support_data.update(supK)                                   # update the support counts to reflect pruning
-        F.append(Fk)                                                # add the frequent k-itemsets to the list of frequent itemsets
+        Ck = apriori_gen(F[k-2], k)                                 
+        Fk, supK  = get_freq(D, Ck, min_support)                   
+        support_data.update(supK)                                  
+        F.append(Fk)                                                
         k += 1
 
-    if verbose:                                                     # Print a list of all the frequent itemsets.
+    if verbose:                                                     
         for kset in F:
             for item in kset:
                 print(""                     + "{"                     + "".join(str(i) + ", " for i in iter(item)).rstrip(', ')                     + "}"                     + ":  sup = " + str(round(support_data[item], 3)))
@@ -66,7 +66,7 @@ def create_candidates(dataset, verbose=False):
     c1 = set()
     for transaction in dataset:
         for item in transaction:
-            c1.add(frozenset([item]))  # Avoid redundant checks
+            c1.add(frozenset([item]))  
     return list(c1)
 
 def get_freq(dataset, candidates, min_support, verbose=False):
@@ -98,13 +98,11 @@ def get_freq(dataset, candidates, min_support, verbose=False):
     freq_list = []
     support_data = defaultdict(int)
 
-    # Count occurrences using a dictionary (faster lookup)
     for transaction in dataset:
         for itemset in candidates:
-            if itemset.issubset(transaction):  # Faster than intersection check
+            if itemset.issubset(transaction):  
                 support_data[itemset] += 1
 
-    # Filter candidates that meet min_support
     num_transactions = len(dataset)
     min_count = math.ceil(min_support * num_transactions)
 
@@ -140,7 +138,7 @@ def apriori_gen(freq_sets, k):
     """
     
     candidate_list = []
-    freq_set_list = list(freq_sets)  # Convert set to list for indexing
+    freq_set_list = list(freq_sets) 
 
     for i in range(len(freq_set_list)):
         for j in range(i + 1, len(freq_set_list)):  
@@ -149,7 +147,6 @@ def apriori_gen(freq_sets, k):
             L1.sort()
             L2.sort()
             
-            # Generate only if first k-2 items are the same
             if L1[:k-2] == L2[:k-2]:
                 new_candidate = freq_set_list[i] | freq_set_list[j]
                 candidate_list.append(new_candidate)
@@ -177,21 +174,18 @@ def bool_transfer(input):
         raise ValueError('Input must be one of {T, t, 1, True, true, F, F, 0, False, false}')
 
 if __name__ == '__main__':
-    if len(sys.argv)==3:
-        F, support = run_apriori(sys.argv[1], float(sys.argv[2]))
-    elif len(sys.argv)==4:
+    if len(sys.argv)==4:
         F, support = run_apriori(sys.argv[1], float(sys.argv[2]), bool_transfer(sys.argv[3]))
     else:
         raise ValueError('Usage: python apriori.py <data_path> <min_support> <is_verbose>')
-    # print([tuple(s) for s in F])
     support = dict(zip([tuple(k) for k in support.keys()],[v for v in support.values()]))
 
     if len(sys.argv)==4:
         if bool_transfer(sys.argv[3]) == False:
             filename = Path(sys.argv[1]).stem + "_out"
             root_path = Path(subprocess.check_output(["git", "rev-parse", "--show-toplevel"]).strip().decode())
-            output_dir = root_path / "data" / "freq"  # Target folder
-            output_dir.mkdir(parents=True, exist_ok=True)  # Ensure it exists
+            output_dir = root_path / "data" / "freq"
+            output_dir.mkdir(parents=True, exist_ok=True)
             output_file = output_dir / filename
             with open(output_file, mode = 'w',newline='') as file:
                 for k,v in support.items():
@@ -209,5 +203,6 @@ if __name__ == '__main__':
     OR
     py apriori.py data.txt 0.5 True
 
-    Run from the home directory
+    Use "False" for verbose in order to save to file in data/freq
+    Use "True" for verbose in order to print out the frequent itemsets w/ support
     '''
