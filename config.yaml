@@ -1,0 +1,12 @@
+c_andreas:
+    "dbname": "analytics_team"
+    "user": "postgres"
+    "password": "pasted-sprang-siesta-shortwave"
+    "host": "192.168.1.24"
+    "port": "5432"
+
+
+c_ams:
+    "dbname": "vpn.ams.org"
+    "user": "ezhang"
+    "password": "D0M@thPr0j3ct$"
